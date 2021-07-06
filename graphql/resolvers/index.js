@@ -1,6 +1,8 @@
 //model
 const Event = require("../../model/event");
 const User = require("../../model/user");
+const Booking = require("../../model/booking");
+
 const safeAwait = require("safe-await");
 const bcrypt = require("bcryptjs");
 
@@ -16,11 +18,12 @@ const events = async (eventIds) => {
     throw new Error("Events not found");
   }
 
+  console.log("Map events");
   return events.map((event) => {
     return {
       ...event._doc,
       date: new Date(event._doc.date).toISOString(),
-      creator: user(event.creator),
+      creator: user.bind(event.creator),
     };
   });
 };
@@ -32,14 +35,97 @@ const user = async (userId) => {
   if (error) {
     throw new Error("User not found");
   }
-
+  console.log("Map Users");
   return {
     ...user._doc,
-    createdEvents: events(user.createdEvents),
+    createdEvents: events.bind(user.createdEvents),
+  };
+};
+
+// return single event for booking
+const singleEvent = async (eventId) => {
+  console.log(eventId);
+  const [error, event] = await safeAwait(Event.findById(eventId));
+
+  if (error) {
+    throw new Error("Single Event Found Error " + error);
+  }
+
+  console.log("map Single Event");
+  return {
+    ...event._doc,
+    creator: user.bind(event.creator),
   };
 };
 
 module.exports = {
+  bookings: async () => {
+    const [error, bookings] = await safeAwait(Booking.find());
+
+    if (error) {
+      throw new Error("Booking Error " + error);
+    }
+
+    return bookings.map((booking) => {
+      return {
+        ...booking._doc,
+        event: singleEvent.bind(this, booking._doc.event),
+        user: user.bind(this, booking._doc.user),
+        createdAt: new Date(booking._doc.createdAt).toISOString(),
+        updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+      };
+    });
+  },
+  bookEvent: async (args) => {
+    const [error, event] = await safeAwait(Event.findById(args.eventId));
+
+    if (error) {
+      throw new Error("Event Found Error " + error);
+    }
+
+    const bookingData = new Booking({
+      event: args.eventId,
+      user: "60e4623bf44e6e25586286ec",
+    });
+
+    const [error2, booking] = await safeAwait(bookingData.save());
+
+    if (error2) {
+      throw new Error("Booking Save Error " + error2);
+    }
+
+    console.log("Booking saved");
+
+    return {
+      ...booking._doc,
+      event: singleEvent.bind(this, booking._doc.event),
+      user: user.bind(this, booking._doc.user),
+      createdAt: new Date(booking._doc.createdAt).toISOString(),
+      updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+    };
+  },
+  cancelBooking: async (args) => {
+    const [error, booking] = await safeAwait(Booking.findById(args.bookingId));
+
+    if (error) {
+      throw new Error("Booking Found Error  " + error);
+    }
+
+    const [error2, bookingDeleted] = await safeAwait(
+      Booking.deleteOne({ _id: args.bookingId })
+    );
+
+    if (error2) {
+      throw new Error("Booking Delete Error " + error2);
+    }
+
+    return {
+      event: singleEvent.bind(this, booking._doc.event),
+      user: user.bind(this, booking._doc.user),
+      createdAt: new Date(booking._doc.createdAt).toISOString(),
+      updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+    };
+  },
   events: async () => {
     try {
       const eventsData = await Event.find();
@@ -47,7 +133,7 @@ module.exports = {
         return {
           ...event._doc,
           date: new Date(event._doc.date).toISOString(),
-          creator: user(event.creator),
+          creator: user.bind(this, event.creator),
         };
       });
 
@@ -77,7 +163,7 @@ module.exports = {
       return {
         ...event._doc,
         date: new Date(event._doc.date).toISOString(),
-        creator: user(event.creator),
+        creator: user.bind(this, event.creator),
       };
     } catch (err) {
       throw new Error("Event Error " + err);
@@ -104,7 +190,7 @@ module.exports = {
 
       return {
         ...user._doc,
-        createdEvents: events(user.createdEvents),
+        createdEvents: events.bind(this, user.createdEvents),
       };
     } catch (err) {
       throw new Error("Error " + err);
