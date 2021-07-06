@@ -1,93 +1,39 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
+const safeAwait = require("safe-await");
+
+//dot env
+dotenv.config({ path: "./config.env" });
 
 //graphql
 const { graphqlHTTP } = require("express-graphql");
-const { buildSchema } = require("graphql");
+const graphQlSchema = require("./graphql/schema/index");
+const graphQlResolvers = require("./graphql/resolvers/index");
 
 //monogoose
 const mongoose = require("mongoose");
-
-//model
-const Event = require("./model/event");
 
 const app = express();
 
 app.use(bodyParser.json());
 
-const events = [];
-
 app.use(
   "/graphql",
   graphqlHTTP({
-    schema: buildSchema(`
-
-      type RootQuery {
-          events: [Event!]!
-      }
-
-    
-      type RootMutation {
-          createEvent(eventInput: EventInput): Event!
-      }
-
-      input EventInput {
-        title : String!
-        description : String!
-        price: Float!
-        date: String!
-      }
-
-
-      type Event {
-        _id : ID!
-        title : String!
-        description : String!
-        price: Float!
-        date: String!
-    }
-
-      schema {
-          query: RootQuery
-          mutation: RootMutation
-      }
-    `),
-    rootValue: {
-      events: async () => {
-        try {
-          const events = await Event.find();
-          return events;
-        } catch (err) {
-          throw new Error("cant Create Event Try Again");
-        }
-      },
-      createEvent: async (args) => {
-        const eventData = new Event({
-          title: args.eventInput.title,
-          description: args.eventInput.description,
-          price: +args.eventInput.price,
-          date: new Date(args.eventInput.date),
-        });
-
-        try {
-          const event = await eventData.save();
-          return event;
-        } catch (err) {
-          throw new Error("cant Create Event Try Again");
-        }
-      },
-    },
+    schema: graphQlSchema,
+    rootValue: graphQlResolvers,
     graphiql: true,
   })
 );
 
 mongoose
-  .connect(
-    `mongodb+srv://naba-admin:YSlCxAFSfgkYg9it@cluster0.ilr8i.mongodb.net/events-react-dev?retryWrites=true&w=majority`,
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(process.env.MONGODB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
-    app.listen(8000, () => {
+    app.listen(process.env.PORT, () => {
       console.log("Port Started");
     });
   })
