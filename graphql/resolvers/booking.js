@@ -12,7 +12,8 @@ const { dateToString } = require("../../helpers/date");
 const safeAwait = require("safe-await");
 
 module.exports = {
-  bookings: async () => {
+  bookings: async (args, req) => {
+    if (!req.isAuth) throw new Error("User Not authticated");
     const [error, bookings] = await safeAwait(Booking.find());
 
     if (error) {
@@ -23,7 +24,8 @@ module.exports = {
       return transformBooking(booking);
     });
   },
-  bookEvent: async (args) => {
+  bookEvent: async (args, req) => {
+    if (!req.isAuth) throw new Error("User Not authticated");
     const [error, event] = await safeAwait(Event.findById(args.eventId));
 
     if (error) {
@@ -32,7 +34,7 @@ module.exports = {
 
     const bookingData = new Booking({
       event: args.eventId,
-      user: "60e4623bf44e6e25586286ec",
+      user: req.userId,
     });
 
     const [error2, booking] = await safeAwait(bookingData.save());
@@ -45,7 +47,8 @@ module.exports = {
 
     return transformBooking(booking);
   },
-  cancelBooking: async (args) => {
+  cancelBooking: async (args, req) => {
+    if (!req.isAuth) throw new Error("User Not authticated");
     const [error, booking] = await safeAwait(Booking.findById(args.bookingId));
 
     if (error) {
