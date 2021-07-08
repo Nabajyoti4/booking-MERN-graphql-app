@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const safeAwait = require("safe-await");
+const cors = require("cors");
 
 //dot env
 dotenv.config({ path: "./config.env" });
@@ -20,7 +21,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 app.use(bodyParser.json());
-
+app.use(cors());
 app.use(isAuth);
 app.use(
   "/graphql",
