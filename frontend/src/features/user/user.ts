@@ -12,7 +12,14 @@ const userSlice = createSlice({
   name: "authentication",
   initialState: initialAuthState,
   reducers: {
-    login: (state, action: PayloadAction<User>) => {
+    login: (
+      state,
+      action: PayloadAction<{
+        token: string;
+        userId: string;
+        tokenExpiration: number;
+      }>
+    ) => {
       console.log(action.payload);
     },
   },

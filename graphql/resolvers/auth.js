@@ -8,29 +8,30 @@ module.exports = {
   createUser: async (args) => {
     const { email, password } = args.userInput;
 
-    try {
-      const emailTaken = await User.findOne({ email: email });
-      if (emailTaken) {
-        throw new Error("Email Taken already");
-      }
+    const [error, emailTaken] = await safeAwait(User.findOne({ email: email }));
 
-      const hasedPassword = await bcrypt.hash(password, 12);
-
-      const userData = new User({
-        email: email,
-        password: hasedPassword,
-      });
-
-      const user = await userData.save();
-
-      return {
-        ...user._doc,
-        createdEvents: events.bind(this, user.createdEvents),
-      };
-    } catch (err) {
-      throw new Error("Error " + err);
+    if (emailTaken) {
+      throw new Error("Email Taken already");
+      // error.data = "";
+      // error.code = 401;
+      // throw error;
     }
+
+    const hasedPassword = await bcrypt.hash(password, 12);
+
+    const userData = new User({
+      email: email,
+      password: hasedPassword,
+    });
+
+    const user = await userData.save();
+
+    return {
+      ...user._doc,
+      createdEvents: events.bind(this, user.createdEvents),
+    };
   },
+
   login: async ({ email, password }) => {
     //check if user exist
     const [error, user] = await safeAwait(User.findOne({ email: email }));

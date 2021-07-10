@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "../features/user/user";
+import errorReducer from "../features/error/error";
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
+    error: errorReducer,
   },
 });
 

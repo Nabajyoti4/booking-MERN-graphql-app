@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import Events from "./pages/Events";
 import Booking from "./pages/Booking";
 import MainNavigation from "./components/Navigation/MainNavigation";
+import SignUp from "./pages/SignUp";
 
 const App: React.FC = () => {
   return (
@@ -21,13 +22,16 @@ const App: React.FC = () => {
           <Route path="/" exact>
             <Auth></Auth>
           </Route>
-          <Route path="/auth">
+          <Route path="/auth" exact>
             <Auth></Auth>
           </Route>
-          <Route path="/events">
+          <Route path="/signup" exact>
+            <SignUp></SignUp>
+          </Route>
+          <Route path="/events" exact>
             <Events></Events>
           </Route>
-          <Route path="/booking">
+          <Route path="/booking" exact>
             <Booking></Booking>
           </Route>
           <Redirect to="/"></Redirect>

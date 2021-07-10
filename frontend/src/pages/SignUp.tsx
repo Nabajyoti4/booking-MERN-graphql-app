@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { useAppDispatch } from "../app/hooks";
-import { login } from "../features/user/user";
 import { useHistory } from "react-router-dom";
-
 //Ui
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
@@ -13,16 +10,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import Box from "@material-ui/core/Box";
-
 //Appolo
 import { useMutation } from "@apollo/client";
-import { LOGIN_USER } from "../GraphQl/Mutations";
-
-interface SignUpData {
-  token: string;
-  userId: string;
-  tokenExpiration: number;
-}
+import { SIGNUP_USER } from "../GraphQl/Mutations";
 
 const useStyles = makeStyles((theme) => ({
   labelSpace: {
@@ -38,46 +28,41 @@ function Alert(props: any) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-function Auth() {
+function SignUp() {
   const classes = useStyles();
-  const dispatch = useAppDispatch();
   const history = useHistory();
-
   const [open, setOpen] = React.useState<boolean>(false);
   const handleClose = () => {
     setOpen(false);
   };
 
   //Login User
-  const [loginUser, { loading: loadingLogin }] = useMutation(LOGIN_USER);
+  const [signUpUser, { loading: loadingSignUp }] = useMutation(SIGNUP_USER, {
+    errorPolicy: "none",
+    onCompleted: (data): void => {
+      console.log(data); // the response
+    },
+    onError: (error) => {
+      console.log("Error:" + error);
+    },
+  });
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const submitHandler = async (e: React.MouseEvent) => {
+  const signUpHandler = async (e: React.MouseEvent) => {
     e.preventDefault();
-
     try {
-      const data = await loginUser({
+      const data = await signUpUser({
         variables: {
           email: email,
           password: password,
         },
       });
 
-      const userData = data.data.login as SignUpData;
-
-      dispatch(
-        login({
-          token: userData.token,
-          userId: userData.userId,
-          tokenExpiration: userData.tokenExpiration,
-        })
-      );
-
-      history.push("/events");
-    } catch (err) {
-      setOpen(true);
+      console.log(data);
+    } catch (error) {
+      console.log("sIGN UP " + error);
     }
   };
 
@@ -89,7 +74,7 @@ function Auth() {
       }}
     >
       <Typography variant="h1" component="h2">
-        {loadingLogin && <p> Loading..</p>}
+        {loadingSignUp && <p> Loading..</p>}
       </Typography>
       <form>
         <Paper
@@ -126,21 +111,20 @@ function Auth() {
           />
 
           <Box className={classes.boxClass}>
-            <Button onClick={submitHandler} variant="contained" color="primary">
-              Login
+            <Button onClick={signUpHandler} variant="contained" color="primary">
+              Sign Up
             </Button>
             <Typography
               onClick={() => {
-                history.push("/signup");
+                history.push("/auth");
               }}
               style={{
                 cursor: "pointer",
-                width: "20%",
               }}
               variant="body2"
               component="h2"
             >
-              Sign Up
+              Login
             </Typography>
           </Box>
         </Paper>
@@ -155,4 +139,4 @@ function Auth() {
   );
 }
 
-export default Auth;
+export default SignUp;
