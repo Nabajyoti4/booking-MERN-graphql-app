@@ -25,6 +25,18 @@ interface EventValues {
   date: string;
 }
 
+interface EventItem {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  date: string;
+}
+
+interface EventList {
+  events: EventItem[];
+}
+
 interface Props {
   showSnack(): void;
 }
@@ -67,10 +79,26 @@ const EventCreate: React.FC<Props> = (props) => {
   const show = useAppSelector((state) => state.modal.show);
   const dispatch = useAppDispatch();
   const classes = useStyles();
+
   const [createEvent, { loading: loadingEvent }] = useMutation<{
     eventInput: EventValues;
   }>(CREATE_EVENT, {
-    refetchQueries: [{ query: EVENTS }],
+    // refetchQueries: [{ query: EVENTS }],
+    update(cache, { data }) {
+      const newEvent = data;
+      const existingEvents = cache.readQuery<EventList>({
+        query: EVENTS,
+      });
+
+      if (existingEvents && newEvent) {
+        cache.writeQuery({
+          query: EVENTS,
+          data: {
+            events: [...existingEvents?.events, newEvent],
+          },
+        });
+      }
+    },
   });
 
   const formik = useFormik({

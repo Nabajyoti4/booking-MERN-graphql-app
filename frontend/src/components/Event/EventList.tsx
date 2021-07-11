@@ -26,6 +26,20 @@ const EventList: React.FC<EventProps> = (event: EventProps) => {
   return (
     <Grid key={event.event._id} item xs={6}>
       <Paper className={classes.paper}>
+        <Typography
+          style={{
+            padding: "2px",
+            backgroundColor: "white",
+            color: "black",
+            width: "30%",
+            marginLeft: "auto",
+            borderRadius: "20px",
+          }}
+          variant="h6"
+          component="h2"
+        >
+          Date : {new Date(event.event.date).toLocaleDateString("en-US")}
+        </Typography>
         <Typography variant="h3" component="h2">
           {event.event.title}
         </Typography>
@@ -33,7 +47,7 @@ const EventList: React.FC<EventProps> = (event: EventProps) => {
           {event.event.description}
         </Typography>
         <Typography variant="h5" component="h2">
-          RS : {event.event.price * 75}
+          RS : {event.event.price}
         </Typography>
         <Button
           style={{

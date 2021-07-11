@@ -7,9 +7,7 @@ export const EVENTS = gql`
       title
       description
       price
-      creator {
-        _id
-      }
+      date
     }
   }
 `;

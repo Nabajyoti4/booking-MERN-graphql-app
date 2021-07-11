@@ -5,7 +5,7 @@ const { transformEvent } = require("./merge");
 module.exports = {
   events: async () => {
     try {
-      const eventsData = await Event.find();
+      const eventsData = await Event.find().sort([["date"]]);
       const events = eventsData.map((event) => {
         return transformEvent(event);
       });
@@ -17,7 +17,6 @@ module.exports = {
   },
   createEvent: async (args, req) => {
     if (!req.isAuth) throw new Error("User Not authticated");
-
 
     const eventData = new Event({
       title: args.eventInput.title,

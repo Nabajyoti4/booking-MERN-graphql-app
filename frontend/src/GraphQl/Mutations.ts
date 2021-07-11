@@ -42,6 +42,9 @@ export const CREATE_EVENT = gql`
     ) {
       _id
       title
+      description
+      price
+      date
     }
   }
 `;

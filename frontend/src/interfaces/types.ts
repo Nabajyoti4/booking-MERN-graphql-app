@@ -3,7 +3,5 @@ export interface Event {
   title: string;
   description: string;
   price: number;
-  creator: {
-    _id: string;
-  };
+  date: string;
 }
