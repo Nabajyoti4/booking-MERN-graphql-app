@@ -12,7 +12,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import AddIcon from "@material-ui/icons/Add";
 import { Event } from "../interfaces/types";
-import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+
 //component
 import EventList from "../components/Event/EventList";
 import EventCreate from "../components/Event/EventCreate";
@@ -40,34 +43,55 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+function Alert(props: any) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 function Events() {
   const userId = useAppSelector((state) => state.user.userId);
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const { loading, error, data } = useQuery<EventData>(EVENTS);
 
+  //snakbar
+  const [open, setOpen] = React.useState<boolean>(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
   return (
     <Container maxWidth={false}>
-      <EventCreate></EventCreate>
+      <EventCreate showSnack={handleOpen}></EventCreate>
       <Typography className={classes.headTitle} variant="h3" component="h2">
         Events
       </Typography>
-      <Button
+      <IconButton
         className={classes.addBtn}
         onClick={() => {
           dispatch(setModal({ show: true }));
         }}
       >
         <AddIcon></AddIcon>
-      </Button>
+      </IconButton>
 
       <div className={classes.root}>
         {loading && <p>Loading Events...</p>}
         <Grid container spacing={6}>
           {data &&
-            data.events.map((event) => <EventList event={event}></EventList>)}
+            data.events.map((event) => (
+              <EventList key={event._id} event={event}></EventList>
+            ))}
         </Grid>
       </div>
+
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="success">
+          Event Added Succesfully
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

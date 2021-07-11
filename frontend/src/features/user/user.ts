@@ -21,6 +21,7 @@ const userSlice = createSlice({
       state.token = action.payload.token;
       state.userId = action.payload.userId;
       state.tokenExpiration = action.payload.tokenExpiration;
+      localStorage.setItem("token", state.token);
     },
   },
   extraReducers: {},
