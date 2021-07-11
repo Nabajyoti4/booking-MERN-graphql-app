@@ -1,26 +1,26 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import User from "../../models/user";
+interface User {
+  token: string;
+  userId: string;
+  tokenExpiration: number | null;
+}
 
 // auth slice
 const initialAuthState: User = {
-  email: "",
-  password: "",
+  token: "",
+  userId: "",
+  tokenExpiration: null,
 };
 
 const userSlice = createSlice({
   name: "authentication",
   initialState: initialAuthState,
   reducers: {
-    login: (
-      state,
-      action: PayloadAction<{
-        token: string;
-        userId: string;
-        tokenExpiration: number;
-      }>
-    ) => {
-      console.log(action.payload);
+    login: (state, action: PayloadAction<User>) => {
+      state.token = action.payload.token;
+      state.userId = action.payload.userId;
+      state.tokenExpiration = action.payload.tokenExpiration;
     },
   },
   extraReducers: {},

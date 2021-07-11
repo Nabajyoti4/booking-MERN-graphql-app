@@ -1,9 +1,15 @@
 import { gql } from "@apollo/client";
 
-export const LOGIN_USER = gql`
-  query {
-    login(email: $email, password: $password) {
-      token
+export const EVENTS = gql`
+  query Events {
+    events {
+      _id
+      title
+      description
+      price
+      creator {
+        _id
+      }
     }
   }
 `;
