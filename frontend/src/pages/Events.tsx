@@ -1,5 +1,6 @@
-import React from "react";
-import { useAppSelector } from "../app/hooks";
+import React, { useState } from "react";
+import { useAppSelector, useAppDispatch } from "../app/hooks";
+import { setModal } from "../features/modal/modal";
 
 //graphql
 import { EVENTS } from "../GraphQl/Queries";
@@ -11,9 +12,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import AddIcon from "@material-ui/icons/Add";
 import { Event } from "../interfaces/types";
-import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 //component
 import EventList from "../components/Event/EventList";
+import EventCreate from "../components/Event/EventCreate";
 
 interface EventData {
   events: Event[];
@@ -41,16 +43,23 @@ const useStyles = makeStyles(() => ({
 function Events() {
   const userId = useAppSelector((state) => state.user.userId);
   const classes = useStyles();
+  const dispatch = useAppDispatch();
   const { loading, error, data } = useQuery<EventData>(EVENTS);
 
   return (
     <Container maxWidth={false}>
+      <EventCreate></EventCreate>
       <Typography className={classes.headTitle} variant="h3" component="h2">
         Events
       </Typography>
-      <IconButton className={classes.addBtn}>
+      <Button
+        className={classes.addBtn}
+        onClick={() => {
+          dispatch(setModal({ show: true }));
+        }}
+      >
         <AddIcon></AddIcon>
-      </IconButton>
+      </Button>
 
       <div className={classes.root}>
         {loading && <p>Loading Events...</p>}

@@ -18,14 +18,13 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "50px",
     background: "#4627b4",
     color: "white",
-    boxShadow: "-20px -20px 30px #3c2199",
   },
 }));
 
 const EventList: React.FC<EventProps> = (event: EventProps) => {
   const classes = useStyles();
   return (
-    <Grid item xs={6}>
+    <Grid key={event.event._id} item xs={6}>
       <Paper className={classes.paper}>
         <Typography variant="h3" component="h2">
           {event.event.title}
