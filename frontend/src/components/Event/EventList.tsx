@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 const EventList: React.FC<EventProps> = (event: EventProps) => {
   const classes = useStyles();
   return (
-    <Grid key={event.event._id} item xs={6}>
+    <Grid key={event.event._id} item xs={12} sm={12} lg={6}>
       <Paper className={classes.paper}>
         <Typography
           style={{

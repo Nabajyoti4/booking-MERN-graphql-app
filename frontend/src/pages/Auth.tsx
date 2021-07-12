@@ -27,6 +27,7 @@ interface SignUpData {
 const useStyles = makeStyles((theme) => ({
   labelSpace: {
     marginBottom: "10px",
+    backgroundColor: "white",
   },
   boxClass: {
     display: "flex",
@@ -98,6 +99,8 @@ function Auth() {
             padding: "20px",
             width: "50%",
             margin: "auto",
+            background: "#4627b4",
+            color: "white",
           }}
         >
           <TextField

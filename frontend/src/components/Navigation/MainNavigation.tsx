@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useHistory } from "react-router";
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
 
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -34,11 +36,22 @@ const useStyles = makeStyles((theme) => ({
 
 const MainNavigation: React.FC = () => {
   const classes = useStyles();
+  const history = useHistory();
+  const token = useState<string | null>(localStorage.getItem("token"));
   return (
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h4" className={classes.title}>
+          <Typography
+            variant="h4"
+            style={{
+              cursor: "pointer",
+            }}
+            className={classes.title}
+            onClick={() => {
+              history.push("/");
+            }}
+          >
             EasyEvent
           </Typography>
 
@@ -47,10 +60,11 @@ const MainNavigation: React.FC = () => {
               <li>
                 <NavLink to="/auth">
                   <Typography variant="h6" className={classes.title}>
-                    Authticated
+                    Login
                   </Typography>
                 </NavLink>
               </li>
+
               <li>
                 <NavLink to="/events">
                   <Typography variant="h6" className={classes.title}>

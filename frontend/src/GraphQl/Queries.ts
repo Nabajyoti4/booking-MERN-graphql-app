@@ -11,3 +11,15 @@ export const EVENTS = gql`
     }
   }
 `;
+
+export const USER_EVENTS = gql`
+  query UserEvents {
+    userEvents {
+      _id
+      title
+      description
+      price
+      date
+    }
+  }
+`;

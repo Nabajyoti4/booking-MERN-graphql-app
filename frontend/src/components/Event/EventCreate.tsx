@@ -2,7 +2,8 @@ import React from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import { setModal } from "../../features/modal/modal";
 import { useFormik } from "formik";
-import * as Yup from "yup";
+import EventInputSchema from "../Validation/EventCreateValidation";
+
 //ui
 import Typography from "@material-ui/core/Typography";
 import { Button } from "@material-ui/core";
@@ -11,6 +12,9 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
+import EventIcon from "@material-ui/icons/Event";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Box from "@material-ui/core/Box";
 
 //graphql
 import { CREATE_EVENT } from "../../GraphQl/Mutations";
@@ -58,22 +62,6 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "10px",
   },
 }));
-
-const EventInputSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(2, "Too Short!")
-    .max(50, "Too Long!")
-    .required("Required"),
-  description: Yup.string()
-    .min(2, "Too Short!")
-    .max(300, "Too Long!")
-    .required("Required"),
-  price: Yup.number()
-    .required("Required")
-    .min(10, "Too low")
-    .max(300, "Too High!"),
-  date: Yup.string().required("Required"),
-});
 
 const EventCreate: React.FC<Props> = (props) => {
   const show = useAppSelector((state) => state.modal.show);
@@ -161,6 +149,7 @@ const EventCreate: React.FC<Props> = (props) => {
           <TextField
             className={classes.labelSpace}
             fullWidth
+            disabled={loadingEvent}
             id="title"
             name="title"
             label="Title of the Event"
@@ -174,6 +163,7 @@ const EventCreate: React.FC<Props> = (props) => {
           <TextField
             className={classes.labelSpace}
             fullWidth
+            disabled={loadingEvent}
             id="price"
             label="Entry price for the Event"
             type="number"
@@ -187,6 +177,7 @@ const EventCreate: React.FC<Props> = (props) => {
 
           <TextField
             className={classes.labelSpace}
+            disabled={loadingEvent}
             fullWidth
             multiline
             rows={6}
@@ -204,6 +195,7 @@ const EventCreate: React.FC<Props> = (props) => {
           />
 
           <TextField
+            disabled={loadingEvent}
             className={classes.labelSpace}
             fullWidth
             id="date"
@@ -217,16 +209,20 @@ const EventCreate: React.FC<Props> = (props) => {
             helperText={formik.touched.date && formik.errors.date}
           />
 
-          <Button
-            style={{
-              backgroundColor: "#4627b4",
-              color: "whitesmoke",
-            }}
-            variant="contained"
-            type="submit"
-          >
-            ADD
-          </Button>
+          {loadingEvent ? (
+            <CircularProgress></CircularProgress>
+          ) : (
+            <Button
+              style={{
+                backgroundColor: "#4627b4",
+                color: "whitesmoke",
+              }}
+              variant="contained"
+              type="submit"
+            >
+              ADD
+            </Button>
+          )}
         </form>
       </Paper>
     </Modal>

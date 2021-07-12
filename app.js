@@ -3,12 +3,14 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const safeAwait = require("safe-await");
 const cors = require("cors");
+const multer = require("multer");
 
 //dot env
 dotenv.config({ path: "./config.env" });
 
 //graphql
 const { graphqlHTTP } = require("express-graphql");
+const { graphqlUploadExpress } = require("graphql-upload");
 const graphQlSchema = require("./graphql/schema/index");
 const graphQlResolvers = require("./graphql/resolvers/index");
 
