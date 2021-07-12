@@ -18,7 +18,6 @@ module.exports = {
   userEvents: async (args, req) => {
     if (!req.isAuth) throw new Error("User Not authticated");
     try {
-      const userId = args.id;
       const eventsData = await Event.find({ creator: req.userId }).sort([
         ["date"],
       ]);
@@ -29,6 +28,17 @@ module.exports = {
       return events;
     } catch (err) {
       throw new Error("Cant Fetch Events");
+    }
+  },
+  deleteEvent: async (args, req) => {
+    if (!req.isAuth) throw new Error("User Not authticated");
+    try {
+      const id = args.id;
+      const events = await Event.findByIdAndDelete(id);
+
+      return events;
+    } catch (err) {
+      throw new Error("Cant Fetch Events" + err);
     }
   },
   createEvent: async (args, req) => {

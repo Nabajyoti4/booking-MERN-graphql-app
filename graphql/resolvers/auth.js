@@ -26,10 +26,7 @@ module.exports = {
 
     const user = await userData.save();
 
-    return {
-      ...user._doc,
-      createdEvents: events.bind(this, user.createdEvents),
-    };
+    return user;
   },
 
   login: async ({ email, password }) => {

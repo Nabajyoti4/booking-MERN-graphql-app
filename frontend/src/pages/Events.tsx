@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useAppSelector, useAppDispatch } from "../app/hooks";
+import React from "react";
+import { useAppDispatch } from "../app/hooks";
 import { setModal } from "../features/modal/modal";
+import { useHistory } from "react-router";
 
 //graphql
 import { USER_EVENTS } from "../GraphQl/Queries";
@@ -51,7 +52,12 @@ function Alert(props: any) {
 function Events() {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const { loading, error, data } = useQuery<EventData>(USER_EVENTS);
+  const history = useHistory();
+  const { loading, error, data } = useQuery<EventData>(USER_EVENTS, {
+    onError: (err) => {
+      history.push("/auth");
+    },
+  });
 
   //snakbar
   const [open, setOpen] = React.useState<boolean>(false);
@@ -68,24 +74,35 @@ function Events() {
       <Typography className={classes.headTitle} variant="h3" component="h2">
         My Events
       </Typography>
-      <IconButton
-        className={classes.addBtn}
-        onClick={() => {
-          dispatch(setModal({ show: true }));
-        }}
-      >
-        <AddIcon></AddIcon>
-      </IconButton>
 
-      <div className={classes.root}>
-        {loading && <EventSkeleton></EventSkeleton>}
-        <Grid container spacing={6}>
-          {data &&
-            data.userEvents.map((event) => (
-              <EventList key={event._id} event={event}></EventList>
-            ))}
-        </Grid>
-      </div>
+      {error ? (
+        <p>Error Loading ...</p>
+      ) : (
+        <>
+          <IconButton
+            className={classes.addBtn}
+            onClick={() => {
+              dispatch(setModal({ show: true }));
+            }}
+          >
+            <AddIcon></AddIcon>
+          </IconButton>
+
+          <div className={classes.root}>
+            {loading && <EventSkeleton></EventSkeleton>}
+            <Grid container spacing={6}>
+              {data &&
+                data.userEvents.map((event) => (
+                  <EventList
+                    key={event._id}
+                    event={event}
+                    auth={true}
+                  ></EventList>
+                ))}
+            </Grid>
+          </div>
+        </>
+      )}
 
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="success">

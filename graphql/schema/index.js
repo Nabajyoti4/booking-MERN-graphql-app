@@ -11,6 +11,7 @@ type RootQuery {
 
 type RootMutation {
     createEvent(eventInput: EventInput): Event!
+    deleteEvent(id: ID!): Event!
     createUser(userInput: UserInput): User!
     bookEvent(eventId: ID!): Booking!
     cancelBooking(bookingId: ID!): Booking!

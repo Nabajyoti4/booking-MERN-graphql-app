@@ -64,7 +64,7 @@ function Home() {
         <Grid container spacing={6}>
           {data &&
             data.events.map((event) => (
-              <EventList key={event._id} event={event}></EventList>
+              <EventList auth={false} key={event._id} event={event}></EventList>
             ))}
         </Grid>
       </div>

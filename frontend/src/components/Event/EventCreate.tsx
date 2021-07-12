@@ -12,9 +12,7 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import EventIcon from "@material-ui/icons/Event";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Box from "@material-ui/core/Box";
 
 //graphql
 import { CREATE_EVENT } from "../../GraphQl/Mutations";

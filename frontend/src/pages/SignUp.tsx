@@ -59,6 +59,7 @@ function SignUp() {
           password: password,
         },
       });
+      //FIXME::Remove old data from cache on user signup
 
       console.log(data);
     } catch (error) {
