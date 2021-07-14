@@ -5,14 +5,19 @@ const safeAwait = require("safe-await");
 const cors = require("cors");
 const multer = require("multer");
 
+//Apoolo server
+const { ApolloServer } = require("apollo-server-express");
+const typeDefs = require("./Schema/typeDef/typeDefs");
+const resolvers = require("./Schema/resolvers/resolvers");
+
 //dot env
 dotenv.config({ path: "./config.env" });
 
-//graphql
+/** EXPRESS GRAPHQL PART
 const { graphqlHTTP } = require("express-graphql");
-const { graphqlUploadExpress } = require("graphql-upload");
 const graphQlSchema = require("./graphql/schema/index");
 const graphQlResolvers = require("./graphql/resolvers/index");
+**/
 
 //auth
 const isAuth = require("./middleware/is-auth");
@@ -20,43 +25,42 @@ const isAuth = require("./middleware/is-auth");
 //monogoose
 const mongoose = require("mongoose");
 
-const app = express();
+async function startApolloServer() {
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
 
-app.use(bodyParser.json());
-app.use(cors());
-app.use(isAuth);
-app.use(
-  "/graphql",
-  graphqlHTTP({
-    schema: graphQlSchema,
-    rootValue: graphQlResolvers,
-    graphiql: true,
-    // customFormatErrorFn(err) {
-    //   if (!err.originalError) {
-    //     return err;
-    //   }
-    //   const data = err.originalError.data;
-    //   const message = err.message || "An error occured";
-    //   const code = err.originalError.code || 500;
-    //   return {
-    //     message: message,
-    //     status: code,
-    //     data: data,
-    //   };
-    // },
-  })
-);
+  const app = express();
 
-mongoose
-  .connect(process.env.MONGODB_URL, {
+  app.use(bodyParser.json());
+  app.use(cors());
+  app.use(isAuth);
+
+  server.applyMiddleware({
+    app,
+  });
+
+  const mongoConnect = await mongoose.connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  })
-  .then(() => {
-    app.listen(process.env.PORT, () => {
-      console.log("Port Started");
-    });
-  })
-  .catch((err) => {
-    console.log(err);
   });
+
+  const grapqlPromise = await new Promise((resolve) => {
+    app.listen({ port: process.env.PORT }, resolve);
+  });
+  console.log(
+    `🚀 Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`
+  );
+}
+
+startApolloServer();
+
+/** EXPRESS GRAPHQL PART
+// app.use(
+//   "/graphql",
+//   graphqlHTTP({
+//     schema: graphQlSchema,
+//     rootValue: graphQlResolvers,
+//     graphiql: true,
+//   })
+// );
+**/
