@@ -8,16 +8,14 @@ const multer = require("multer");
 //Apoolo server
 const { ApolloServer } = require("apollo-server-express");
 const typeDefs = require("./Schema/typeDef/typeDefs");
-const resolvers = require("./Schema/resolvers/resolvers");
+const Query = require("./Schema/resolvers/Query");
+const Mutation = require("./Schema/resolvers/Mutation");
+const Event = require("./Schema/resolvers/Event");
+const User = require("./Schema/resolvers/User");
+const Booking = require("./Schema/resolvers/Booking");
 
 //dot env
 dotenv.config({ path: "./config.env" });
-
-/** EXPRESS GRAPHQL PART
-const { graphqlHTTP } = require("express-graphql");
-const graphQlSchema = require("./graphql/schema/index");
-const graphQlResolvers = require("./graphql/resolvers/index");
-**/
 
 //auth
 const isAuth = require("./middleware/is-auth");
@@ -26,14 +24,24 @@ const isAuth = require("./middleware/is-auth");
 const mongoose = require("mongoose");
 
 async function startApolloServer() {
-  const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers: { Query, Mutation, User, Event, Booking },
+    context: ({ req }) => {
+      // get the user token from the headers
+      const token = req.headers.authorization || "";
+
+      const user = isAuth(token);
+
+      return user;
+    },
+  });
   await server.start();
 
   const app = express();
 
   app.use(bodyParser.json());
   app.use(cors());
-  app.use(isAuth);
 
   server.applyMiddleware({
     app,
@@ -53,14 +61,3 @@ async function startApolloServer() {
 }
 
 startApolloServer();
-
-/** EXPRESS GRAPHQL PART
-// app.use(
-//   "/graphql",
-//   graphqlHTTP({
-//     schema: graphQlSchema,
-//     rootValue: graphQlResolvers,
-//     graphiql: true,
-//   })
-// );
-**/

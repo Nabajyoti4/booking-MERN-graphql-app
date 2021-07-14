@@ -1,33 +1,24 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
-  const authHeader = req.get("Authorization");
-
-  if (!authHeader) {
-    req.isAuth = false;
-    return next();
-  }
-
-  const token = authHeader.split(" ")[1];
+const authUser = (tokenRaw) => {
+  const token = tokenRaw.split(" ")[1];
   if (!token || token === "") {
-    req.isAuth = false;
-    return next();
+    return { isAuth: false };
   }
 
   let decodedToken;
   try {
     decodedToken = jwt.verify(token, process.env.SECRET_KEY);
   } catch (error) {
-    req.isAuth = false;
-    return next();
+    return { isAuth: false };
   }
 
   if (!decodedToken) {
-    req.isAuth = false;
-    return next();
+    return { isAuth: false };
   }
 
-  req.isAuth = true;
-  req.userId = decodedToken.userId;
-  next();
+  userId = decodedToken.userId;
+  return { isAuth: true, userId: userId };
 };
+
+module.exports = authUser;
