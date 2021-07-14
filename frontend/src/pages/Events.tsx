@@ -1,7 +1,9 @@
 import React from "react";
 import { useAppDispatch } from "../app/hooks";
+import { setNotification } from "../features/notification/notification";
 import { setModal } from "../features/modal/modal";
 import { useHistory } from "react-router";
+import ErrorHandler from "../error/errorHandler";
 
 //graphql
 import { USER_EVENTS } from "../GraphQl/Queries";
@@ -14,8 +16,6 @@ import Grid from "@material-ui/core/Grid";
 import AddIcon from "@material-ui/icons/Add";
 import { Event } from "../interfaces/types";
 import IconButton from "@material-ui/core/IconButton";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 
 //component
 import EventList from "../components/Event/EventList";
@@ -45,39 +45,34 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props: any) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
 function Events() {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const history = useHistory();
   const { loading, error, data } = useQuery<EventData>(USER_EVENTS, {
     onError: (err) => {
-      console.log(err.graphQLErrors);
+      const errData = ErrorHandler(err);
+      dispatch(
+        setNotification({
+          code: errData.code,
+          message: errData.message,
+          show: true,
+          type: "error",
+        })
+      );
       history.push("/auth");
     },
   });
 
-  //snakbar
-  const [open, setOpen] = React.useState<boolean>(false);
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
   return (
     <Container maxWidth={false}>
-      <EventCreate showSnack={handleOpen}></EventCreate>
+      <EventCreate></EventCreate>
       <Typography className={classes.headTitle} variant="h3" component="h2">
         My Events
       </Typography>
 
       {error ? (
-        <p>Error Loading ...</p>
+        <p>{error.message}</p>
       ) : (
         <>
           <IconButton
@@ -104,12 +99,6 @@ function Events() {
           </div>
         </>
       )}
-
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success">
-          Event Added Succesfully
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

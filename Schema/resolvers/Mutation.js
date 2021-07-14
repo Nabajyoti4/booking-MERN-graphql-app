@@ -38,9 +38,15 @@ const Mutation = {
     try {
       const id = args.id;
       const [error, events] = await safeAwait(Event.findByIdAndDelete(id));
-      if (error) throw new Error("Database Error" + error);
+      if (error) throw new ApolloError("Database Error" + error);
+      if (!events) throw new ApolloError("Event Not Found");
 
-      if (!events) throw new Error("Event Not Found");
+      //delete all bookings realted to that event
+      const [error2, bookings] = await safeAwait(
+        Booking.deleteMany({ event: id })
+      );
+
+      if (error2) throw new ApolloError("Server Error", 500);
 
       return events;
     } catch (err) {
@@ -103,6 +109,7 @@ const Mutation = {
   bookEvent: async (_, args, context, info) => {
     if (!context.isAuth)
       throw new AuthenticationError("User Not authenticated");
+
     const [error, event] = await safeAwait(Event.findById(args.eventId));
 
     if (error) {

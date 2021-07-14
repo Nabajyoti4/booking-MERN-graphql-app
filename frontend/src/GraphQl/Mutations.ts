@@ -59,3 +59,11 @@ export const DELETE_EVENT = gql`
     }
   }
 `;
+
+export const BOOK_EVENT = gql`
+  mutation BookEvent($id: ID!) {
+    bookEvent(eventId: $id) {
+      _id
+    }
+  }
+`;

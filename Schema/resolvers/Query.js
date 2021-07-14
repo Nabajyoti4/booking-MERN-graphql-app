@@ -29,7 +29,9 @@ const Query = {
   bookings: async (_, args, context, info) => {
     if (!context.isAuth)
       throw new AuthenticationError("User Not authenticated");
-    const [error, bookings] = await safeAwait(Booking.find());
+    const [error, bookings] = await safeAwait(
+      Booking.find({ user: context.userId })
+    );
 
     if (error) {
       throw new ApolloError(error, "500");

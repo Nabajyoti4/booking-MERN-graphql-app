@@ -1,4 +1,6 @@
 import React from "react";
+import { useHistory } from "react-router";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
@@ -9,9 +11,13 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import Box from "@material-ui/core/Box";
 import IconButton from "@material-ui/core/IconButton";
+import { setNotification } from "../../features/notification/notification";
+
+//redux
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
 
 //muation
-import { DELETE_EVENT } from "../../GraphQl/Mutations";
+import { DELETE_EVENT, BOOK_EVENT } from "../../GraphQl/Mutations";
 import { USER_EVENTS } from "../../GraphQl/Queries";
 import { useMutation } from "@apollo/client";
 
@@ -39,20 +45,53 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface EventDelete {
+  deleteEvent: Event;
+}
+
 interface EventVars {
   id: string;
 }
 
 const EventList = (props: EventProps) => {
   const classes = useStyles();
+  const dispatch = useAppDispatch();
+  const history = useHistory();
   const { event, auth } = props;
 
   const [deleteEvent, { loading: loadingEvent }] = useMutation<
-    Event,
+    EventDelete,
     EventVars
   >(DELETE_EVENT, {
     refetchQueries: [{ query: USER_EVENTS }],
+    onCompleted: (data) => {
+      dispatch(
+        setNotification({
+          code: "200",
+          message: `Event ${data.deleteEvent.title} Deleted Succesfully`,
+          show: true,
+          type: "success",
+        })
+      );
+    },
   }); //FIXME:: Add custom merge on delete event and update cache
+
+  const [bookEvent, { loading: loadingBooking }] = useMutation<EventVars>(
+    BOOK_EVENT,
+    {
+      onCompleted: (data) => {
+        history.push("/booking");
+      },
+      onError: (err) => {
+        console.log(err);
+      },
+    }
+  );
+
+  const bookEventHandler = () => {
+    console.log(event._id);
+    bookEvent({ variables: { id: event._id } });
+  };
 
   const deleteEventHandler = () => {
     deleteEvent({ variables: { id: event._id } });
@@ -62,7 +101,7 @@ const EventList = (props: EventProps) => {
     <Grid key={event._id} item xs={12} sm={12} lg={6}>
       <Paper className={classes.paper}>
         <Typography className={classes.date} variant="h6" component="h2">
-          Date : {new Date(event.date).toLocaleDateString("en-US")}
+          Date :{new Date(event.date).toLocaleDateString("en-US")}
         </Typography>
         <Typography variant="h3" component="h2">
           {event.title}
@@ -75,6 +114,7 @@ const EventList = (props: EventProps) => {
         </Typography>
         {!auth ? (
           <Button
+            onClick={bookEventHandler}
             style={{
               backgroundColor: "white",
             }}
@@ -93,9 +133,12 @@ const EventList = (props: EventProps) => {
               marginTop: "10px",
             }}
           >
-            <IconButton onClick={deleteEventHandler}>
-              <DeleteIcon></DeleteIcon>
-            </IconButton>
+            {!loadingEvent && (
+              <IconButton onClick={deleteEventHandler}>
+                <DeleteIcon></DeleteIcon>
+              </IconButton>
+            )}
+
             <IconButton>
               <EditIcon></EditIcon>
             </IconButton>

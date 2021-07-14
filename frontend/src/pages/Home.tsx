@@ -9,8 +9,6 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import { Event } from "../interfaces/types";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 
 //component
 import EventList from "../components/Event/EventList";
@@ -19,6 +17,8 @@ import EventSkeleton from "../components/Event/EventSkeleton";
 interface EventData {
   events: Event[];
 }
+
+let eventList: boolean = false;
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -39,19 +39,14 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function Alert(props: any) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
 function Home() {
   const classes = useStyles();
   const { loading, error, data } = useQuery<EventData>(EVENTS);
 
-  //snakbar
-  const [open, setOpen] = React.useState<boolean>(false);
-  const handleClose = () => {
-    setOpen(false);
-  };
+  if (data) {
+    eventList = data.events.length <= 0;
+    console.log(eventList);
+  }
 
   return (
     <Container maxWidth={false}>
@@ -62,18 +57,30 @@ function Home() {
       <div className={classes.root}>
         {loading && <EventSkeleton></EventSkeleton>}
         <Grid container spacing={6}>
+          {error && (
+            <Typography
+              className={classes.headTitle}
+              variant="h3"
+              component="h2"
+            >
+              {error.message}
+            </Typography>
+          )}
           {data &&
             data.events.map((event) => (
               <EventList auth={false} key={event._id} event={event}></EventList>
             ))}
+          {eventList && (
+            <Typography
+              className={classes.headTitle}
+              variant="h3"
+              component="h2"
+            >
+              No Events
+            </Typography>
+          )}
         </Grid>
       </div>
-
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success">
-          Event Added Succesfully
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

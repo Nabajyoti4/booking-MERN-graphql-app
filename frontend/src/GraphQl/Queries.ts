@@ -23,3 +23,18 @@ export const USER_EVENTS = gql`
     }
   }
 `;
+
+export const BOOKINGS = gql`
+  query Bookings {
+    bookings {
+      _id
+      event {
+        _id
+        title
+        description
+        price
+        date
+      }
+    }
+  }
+`;

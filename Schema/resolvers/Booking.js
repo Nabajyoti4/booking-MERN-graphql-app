@@ -7,7 +7,6 @@ const BookingResolver = {
   event: async (parent) => {
     const [error, event] = await safeAwait(Event.findById(parent.event));
     if (error) throw new ApolloError(error, "500");
-
     return event;
   },
   user: async (parent) => {

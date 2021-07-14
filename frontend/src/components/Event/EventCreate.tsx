@@ -1,8 +1,10 @@
 import React from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import { setModal } from "../../features/modal/modal";
+import { setNotification } from "../../features/notification/notification";
 import { useFormik } from "formik";
 import EventInputSchema from "../Validation/EventCreateValidation";
+import ErrorHandler from "../../error/errorHandler";
 
 //ui
 import Typography from "@material-ui/core/Typography";
@@ -39,10 +41,6 @@ interface EventList {
   events: EventItem[];
 }
 
-interface Props {
-  showSnack(): void;
-}
-
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -61,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const EventCreate: React.FC<Props> = (props) => {
+const EventCreate: React.FC = () => {
   const show = useAppSelector((state) => state.modal.show);
   const dispatch = useAppDispatch();
   const classes = useStyles();
@@ -106,15 +104,31 @@ const EventCreate: React.FC<Props> = (props) => {
             date: values.date,
           },
         });
-        console.log(data);
+
         dispatch(
           setModal({
             show: false,
           })
         );
-        props.showSnack();
+
+        dispatch(
+          setNotification({
+            code: "200",
+            message: "Event Added Succesfully",
+            show: true,
+            type: "success",
+          })
+        );
       } catch (err) {
-        console.log("Event Error" + err);
+        const errData = ErrorHandler(err);
+        dispatch(
+          setNotification({
+            code: errData.code,
+            message: errData.message,
+            show: true,
+            type: "error",
+          })
+        );
       }
     },
   });

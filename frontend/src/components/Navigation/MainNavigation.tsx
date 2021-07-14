@@ -73,7 +73,7 @@ const MainNavigation: React.FC = () => {
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/bookings">
+                <NavLink to="/booking">
                   <Typography variant="h6" className={classes.title}>
                     Bookings
                   </Typography>
