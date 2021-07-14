@@ -55,6 +55,7 @@ function Events() {
   const history = useHistory();
   const { loading, error, data } = useQuery<EventData>(USER_EVENTS, {
     onError: (err) => {
+      console.log(err.graphQLErrors);
       history.push("/auth");
     },
   });

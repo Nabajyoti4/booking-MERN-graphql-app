@@ -2,7 +2,7 @@ const Event = require("../../model/event");
 const User = require("../../model/user");
 const safeAwait = require("safe-await");
 const Booking = require("../../model/booking");
-const { ApolloError } = require("apollo-server-express");
+const { ApolloError, AuthenticationError } = require("apollo-server-express");
 
 const Query = {
   events: async () => {
@@ -15,7 +15,8 @@ const Query = {
     }
   },
   userEvents: async (_, args, context, info) => {
-    if (!context.isAuth) throw new ApolloError("User Not authticated", 404);
+    if (!context.isAuth)
+      throw new AuthenticationError("User Not authenticated");
 
     const [error, events] = await safeAwait(
       Event.find({ creator: context.userId }).sort([["date"]])
@@ -26,7 +27,8 @@ const Query = {
     return events;
   },
   bookings: async (_, args, context, info) => {
-    if (!context.isAuth) throw new ApolloError("User Not authticated", 404);
+    if (!context.isAuth)
+      throw new AuthenticationError("User Not authenticated");
     const [error, bookings] = await safeAwait(Booking.find());
 
     if (error) {

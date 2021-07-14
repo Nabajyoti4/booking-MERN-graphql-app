@@ -4,7 +4,7 @@ const Booking = require("../../model/booking");
 const safeAwait = require("safe-await");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { ApolloError } = require("apollo-server-express");
+const { ApolloError, AuthenticationError } = require("apollo-server-express");
 
 const Mutation = {
   createEvent: async (_, args, context, info) => {
@@ -33,7 +33,8 @@ const Mutation = {
     }
   },
   deleteEvent: async (_, args, context, info) => {
-    // if (!req.isAuth) throw new Error("User Not authticated");
+    if (!context.isAuth)
+      throw new AuthenticationError("User Not authenticated");
     try {
       const id = args.id;
       const [error, events] = await safeAwait(Event.findByIdAndDelete(id));
@@ -50,17 +51,17 @@ const Mutation = {
     //check if user exist
     const [error, user] = await safeAwait(User.findOne({ email: args.email }));
 
-    if (error) throw new Error("User Fetch Server Error In login " + error);
+    if (error) throw new ApolloError("Database Error " + error);
 
-    if (!user) throw new Error("User not exists");
+    if (!user) throw new ApolloError("Mail Not Exists In our Account", 404);
 
     const [error2, passwordEqual] = await safeAwait(
       bcrypt.compare(args.password, user.password)
     );
 
-    if (error2) throw new Error("Bcrypt Error " + error2);
+    if (error2) throw new ApolloError("Server Error" + error2, "500");
 
-    if (!passwordEqual) throw new Error("Password Incorrect");
+    if (!passwordEqual) throw new ApolloError("Password Incorrect", "403");
 
     const token = jwt.sign(
       {
@@ -100,7 +101,8 @@ const Mutation = {
     return user;
   },
   bookEvent: async (_, args, context, info) => {
-    if (!context.isAuth) throw new ApolloError("User Not authticated", 404);
+    if (!context.isAuth)
+      throw new AuthenticationError("User Not authenticated");
     const [error, event] = await safeAwait(Event.findById(args.eventId));
 
     if (error) {
@@ -121,7 +123,8 @@ const Mutation = {
     return booking;
   },
   cancelBooking: async (_, args, context, info) => {
-    if (!context.isAuth) throw new ApolloError("User Not authticated", 404);
+    if (!context.isAuth)
+      throw new AuthenticationError("User Not authenticated");
     const [error, booking] = await safeAwait(Booking.findById(args.bookingId));
 
     if (error) {

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { login } from "../features/user/user";
+import { setNotification } from "../features/notification/notification";
 import { useHistory } from "react-router-dom";
+import ErrorHandler from "../error/errorHandler";
 
 //Ui
 import Container from "@material-ui/core/Container";
@@ -10,8 +12,6 @@ import TextField from "@material-ui/core/TextField";
 import { Paper } from "@material-ui/core";
 import { Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 import Box from "@material-ui/core/Box";
 
 //Appolo
@@ -35,19 +35,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Alert(props: any) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
 function Auth() {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const history = useHistory();
-
-  const [open, setOpen] = React.useState<boolean>(false);
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   //Login User
   const [loginUser, { loading: loadingLogin }] = useMutation(LOGIN_USER);
@@ -77,8 +68,25 @@ function Auth() {
       );
 
       history.push("/events");
-    } catch (err) {
-      setOpen(true);
+      dispatch(
+        setNotification({
+          code: "200",
+          message: "Login Successful",
+          show: true,
+          type: "success",
+        })
+      );
+    } catch (err: any) {
+      const errData = ErrorHandler(err);
+
+      dispatch(
+        setNotification({
+          code: errData.code,
+          message: errData.message,
+          show: true,
+          type: "error",
+        })
+      );
     }
   };
 
@@ -148,11 +156,6 @@ function Auth() {
           </Box>
         </Paper>
       </form>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error">
-          Error Occured
-        </Alert>
-      </Snackbar>
       ;
     </Container>
   );

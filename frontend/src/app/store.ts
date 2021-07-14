@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "../features/user/user";
-import errorReducer from "../features/error/error";
+import notificationReducer from "../features/notification/notification";
 import modalReducer from "../features/modal/modal";
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
-    error: errorReducer,
+    notification: notificationReducer,
     modal: modalReducer,
   },
 });
