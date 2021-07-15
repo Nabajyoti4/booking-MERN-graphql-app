@@ -20,6 +20,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { CREATE_EVENT } from "../../GraphQl/Mutations";
 import { EVENTS } from "../../GraphQl/Queries";
 import { useMutation } from "@apollo/client";
+import { Event } from "../../interfaces/types";
 
 //form values
 interface EventValues {
@@ -29,16 +30,8 @@ interface EventValues {
   date: string;
 }
 
-interface EventItem {
-  _id: string;
-  title: string;
-  description: string;
-  price: number;
-  date: string;
-}
-
 interface EventList {
-  events: EventItem[];
+  events: Event[];
 }
 
 const useStyles = makeStyles((theme) => ({

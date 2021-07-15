@@ -132,6 +132,7 @@ const Mutation = {
   cancelBooking: async (_, args, context, info) => {
     if (!context.isAuth)
       throw new AuthenticationError("User Not authenticated");
+
     const [error, booking] = await safeAwait(Booking.findById(args.bookingId));
 
     if (error) {
@@ -139,7 +140,7 @@ const Mutation = {
     }
 
     const [error2, bookingDeleted] = await safeAwait(
-      Booking.deleteOne({ _id: args.bookingId })
+      Booking.findOneAndDelete({ _id: args.bookingId })
     );
 
     if (error2) {

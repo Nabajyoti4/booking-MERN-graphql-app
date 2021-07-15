@@ -1,7 +1,8 @@
 import React from "react";
-
-import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
+import { useHistory } from "react-router";
+import { useAppDispatch } from "../app/hooks";
+import { setNotification } from "../features/notification/notification";
+import ErrorHandler from "../error/errorHandler";
 
 //Applo
 import { BOOKINGS } from "../GraphQl/Queries";
@@ -12,6 +13,9 @@ import { Event } from "../interfaces/types";
 
 //component
 import BookingList from "../components/Booking/BookingList";
+import EventSkeleton from "../components/Event/EventSkeleton";
+import Container from "@material-ui/core/Container";
+import Typography from "@material-ui/core/Typography";
 
 //ui
 import Grid from "@material-ui/core/Grid";
@@ -47,12 +51,22 @@ const useStyles = makeStyles(() => ({
 
 const Booking: React.FC = () => {
   const classes = useStyles();
+  const history = useHistory();
+  const dispatch = useAppDispatch();
+
   const { loading, error, data } = useQuery<BookingData>(BOOKINGS, {
-    onCompleted: (data) => {
-      console.log(data);
-    },
+    fetchPolicy: "no-cache",
     onError: (err) => {
-      console.log(err);
+      const errData = ErrorHandler(err);
+      dispatch(
+        setNotification({
+          code: errData.code,
+          message: errData.message,
+          show: true,
+          type: "error",
+        })
+      );
+      history.push("/auth");
     },
   });
 
@@ -63,10 +77,12 @@ const Booking: React.FC = () => {
       </Typography>
       <div className={classes.root}>
         <Grid container spacing={6}>
+          {loading && <EventSkeleton></EventSkeleton>}
           {data &&
             data.bookings.map((booking) => (
               <BookingList
                 key={booking._id}
+                id={booking._id}
                 event={booking.event}
               ></BookingList>
             ))}
